@@ -1,6 +1,6 @@
 {
   "name": "mydb-observer",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0-alpha.2",
   "description": "`mongodb` observer that publishes update events over `redis` for `mydb`",
   "license": "MIT",
   "dependencies": {
