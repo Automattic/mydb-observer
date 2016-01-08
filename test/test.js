@@ -141,4 +141,31 @@ describe('mydb-observer', function () {
       expect(e4.op).to.eql({ $set: { a: 4 } });
     });
   });
+
+  describe('`__includeId` method', function() {
+    let o1 = undefined;
+    let o2 = { bar: 'baz' };
+    let o3 = { bar: 'baz', fields: { foo: 1 } };
+    let no1, no2, no3;
+
+    it('should work when `options` is `undefined`', function() {
+      no1 = observer._includeId(o1);
+      expect(no1).to.eql({ fields: { _id: 1 }});
+    });
+
+    it('should work when `options` has no `fields` prop', function() {
+      no2 = observer._includeId(o2);
+      expect(no2).to.eql({ bar: 'baz', fields: { _id: 1 }});
+    });
+
+    it('should work when `options` already a `fields` prop', function() {
+      no3 = observer._includeId(o3);
+      expect(no3).to.eql({ bar: 'baz', fields: { foo: 1, _id: 1 }});
+    });
+
+    it('should not modify the original value', function() {
+      expect(o2).to.eql({ bar: 'baz' });
+      expect(o3).to.eql({ bar: 'baz', fields: { foo: 1 } });
+    });
+  })
 });

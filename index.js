@@ -7,6 +7,7 @@
 const EventEmitter = require('events').EventEmitter;
 const debug = require('debug')('mydb-observer');
 const omit = require('101/omit');
+const put = require('101/put');
 
 /**
  * MyDB Observer
@@ -96,18 +97,24 @@ class MyDBObserver extends EventEmitter {
       } else {
         // we findAndModify here to fetch the `_id` of the modified object
         debug('falling back to `findAndModify` to grab `_id`');
-        if (options) {
-          if (options.fields) {
-            options.fields._id = 1;
-          } else {
-            options.fields = { _id: 1 };        
-          }
-        } else {
-          options = { fields: { _id: 1 } }
-        }
+
+        options = this._includeId(options);
+
         return collection.findAndModify(selector, [['_id', 1]], document, options, callback);
       }
     }
+  }
+
+  /**
+   * Make sure `_id` is present in the `options.field` property.
+   * (Without modifying the original options object.)
+   *
+   * @param {Object} (optional) options
+   * @api private
+   */
+
+  _includeId(options) {
+    return put(options || {}, 'fields', put((options || {}).fields || {}, '_id', 1));
   }
 }
 
