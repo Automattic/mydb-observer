@@ -118,4 +118,8 @@ class MyDBObserver extends EventEmitter {
   }
 }
 
+/**
+ * Module exports
+ */
+
 module.exports = MyDBObserver;
