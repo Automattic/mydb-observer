@@ -31,6 +31,83 @@ describe('mydb-observer', function () {
       expect(users.update).to.be.a('function').and.to.not.equal(mongodb.Collection.prototype.update);
     });
   });
+
+  describe('patched `update` method', function () {
+    let selector;
+    let document = { $inc: { test: 1 } };
+    let options = {};
+    
+    before(function() {
+      return users
+        .insertOne({ test: 0 })
+        .then(r => {
+          selector = { _id: r.insertedId };
+        })
+    });
+    
+    it('should work for arguments `(selector, document, options, callback)`', function (callback) {
+      users.update(selector, document, options, callback);
+    });
+
+    it('should work for arguments `(selector, document, options)`', function (callback) {
+      users.update(selector, document, options)
+      .then(result => {
+        callback();
+      })
+      .catch(callback);
+    });
+
+    it('should work for arguments `(selector, document, callback)`', function (callback) {
+      users.update(selector, document, callback);
+    });
+
+    it('should work for arguments `(selector, document)`', function (callback) {
+      users.update(selector, document)
+      .then(result => {
+        callback();
+      })
+      .catch(callback);
+    });
+  });
+  
+  describe('patched `findAndModify` method', function () {
+    let query;
+    let sort = [['_id', 1]];
+    let doc = { $inc: { test: 1 } };
+    let opts = {};
+    
+    before(function() {
+      return users
+        .insertOne({ test: 0 })
+        .then(r => {
+          query = { _id: r.insertedId };
+        })
+    });
+    
+    it('should work for arguments `(query, sort, doc, opts, callback)`', function (callback) {
+      users.findAndModify(query, sort, doc, opts, callback);
+    });
+
+    it('should work for arguments `(query, sort, doc, opts)', function (callback) {
+      users.findAndModify(query, sort, doc, opts)
+      .then(result => {
+        callback();
+      })
+      .catch(callback);
+    });
+
+    it('should work for arguments `(query, sort, doc, callback)`', function (callback) {
+      users.findAndModify(query, sort, doc, callback);
+    });
+
+    it('should work for arguments `(query, sort, doc)`', function (callback) {
+      users.findAndModify(query, sort, doc)
+      .then(result => {
+        callback();
+      })
+      .catch(callback);
+    });
+  });
         
   describe('`op` event', function() {
     let userId;
