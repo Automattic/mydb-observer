@@ -56,26 +56,40 @@ class MyDBObserver extends EventEmitter {
      * Find and Modify
      */
     
-    collection.findAndModify = (query, sort, doc, opts, callback) => findAndModify
-      .call(collection, query, sort, doc, opts)
-      .then(r => {
-        if (r && r.value && r.value._id) {
-          let id = r.value._id.toString();
-          // event must be emitted async to avoid catching exceptions in the promise
-          setImmediate(() => {
-            this.emit('op', id, omit(query, '_id'), doc);
-          });
-        }
-        if (callback) callback(null, r);
-        return r;
-      })
-      .catch(callback);
+    collection.findAndModify = (query, sort, doc, opts, callback) => {
+      
+      if (typeof callback == 'undefined' && typeof opts == 'function') {
+        callback = opts;
+        opts = undefined;
+      }
+      
+      return findAndModify
+        .call(collection, query, sort, doc, opts)
+        .then(r => {
+          if (r && r.value && r.value._id) {
+            let id = r.value._id.toString();
+            // event must be emitted async to avoid catching exceptions in the promise
+            setImmediate(() => {
+              this.emit('op', id, omit(query, '_id'), doc);
+            });
+          }
+          if (callback) callback(null, r);
+          return r;
+        })
+        .catch(callback);
+    }
 
     /**
      * Update
      */
         
     collection.update = (selector, document, options, callback) => {
+      
+      if (typeof callback == 'undefined' && typeof options == 'function') {
+        callback = options;
+        options = undefined;
+      }
+      
       if ((options && options.multi) || selector._id) {
         // update queries with the `multi` option will not produce events, unless `_id` is specified
         debug('`options.multi` specified or `_id`-based query, calling `update` normally');
