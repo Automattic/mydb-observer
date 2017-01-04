@@ -1,6 +1,6 @@
 {
   "name": "mydb-observer",
-  "version": "1.0.0-alpha.3",
+  "version": "1.0.0",
   "description": "`mongodb` observer that publishes update events over `redis` for `mydb`",
   "keywords": [
     "mydb", "mongodb", "observer", "redis"
