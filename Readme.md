@@ -4,9 +4,7 @@ Observes MongoDB Collection objects, publishes write events to Redis for MyDB.
 
 ## Compatibility
 
-* Node 4.x
-* MongoDB 2.1.x
-* Redis 2.4.x
+For compatible node, mongodb and redis versions, please check the `peerDependencies` field in package.json.
 
 ## Usage
 
@@ -25,7 +23,7 @@ mongodb.MongoClient
   .then(db => {
     let foo = db.collection('foo');
     observer.observe(foo);
-    
+
     // changes will be published to Redis, for MyDB
     foo.update(/* ... */);
   });
