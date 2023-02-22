@@ -3,34 +3,37 @@
   "version": "1.0.0",
   "description": "`mongodb` observer that publishes update events over `redis` for `mydb`",
   "keywords": [
-    "mydb", "mongodb", "observer", "redis"
+    "mydb",
+    "mongodb",
+    "observer",
+    "redis"
   ],
   "license": "MIT",
   "contributors": [
     "Marco Aurélio <thecoreh@gmail.com>"
   ],
   "dependencies": {
-    "debug": "~2.6.0",
-    "101": "~1.6.2"
+    "101": "~1.6.2",
+    "debug": "~2.6.0"
   },
   "repository": {
     "git": "git@github.com:Automattic/mydb-observer.git"
   },
   "bugs": {
-    "url" : "https://github.com/Automattic/mydb-observer/issues"
+    "url": "https://github.com/Automattic/mydb-observer/issues"
   },
   "peerDependencies": {
-    "mongodb": "~2.2.19",
+    "mongodb": "^3.7.3",
     "redis": "~2.6.3"
   },
   "engine": {
     "node": ">= 4.0.0"
   },
   "devDependencies": {
-    "mongodb": "~2.2.19",
+    "expect.js": "~0.3.1",
     "kerberos": "~0.0.22",
-    "redis": "~2.6.3",
     "mocha": "~3.2.0",
-    "expect.js": "~0.3.1"
+    "mongodb": "^3.7.3",
+    "redis": "~2.6.3"
   }
 }
