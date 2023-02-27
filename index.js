@@ -6,8 +6,6 @@
 
 const EventEmitter = require('events').EventEmitter;
 const debug = require('debug')('mydb-observer');
-const omit = require('101/omit');
-const put = require('101/put');
 
 /**
  * MyDB Observer
@@ -72,7 +70,7 @@ class MyDBObserver extends EventEmitter {
             let id = r.value._id.toString();
             // event must be emitted async to avoid catching exceptions in the promise
             setImmediate(() => {
-              this.emit('op', id, omit(query, '_id'), doc);
+              this.emit('op', id, this.omit(query, '_id'), doc);
             });
           }
           if (callback) callback(null, r);
@@ -98,7 +96,7 @@ class MyDBObserver extends EventEmitter {
             let id = r.value._id.toString();
             // event must be emitted async to avoid catching exceptions in the promise
             setImmediate(() => {
-              this.emit('op', id, omit(query, '_id'), doc);
+              this.emit('op', id, this.omit(query, '_id'), doc);
             });
           }
           if (callback) callback(null, r);
@@ -129,7 +127,7 @@ class MyDBObserver extends EventEmitter {
               let id = selector._id.toString();
               // event must be emitted async to avoid catching exceptions in the promise
               setImmediate(() => {
-                this.emit('op', id, omit(selector, '_id'), document);
+                this.emit('op', id, this.omit(selector, '_id'), document);
               });
             }
             if (callback) callback(null, r);
@@ -148,6 +146,23 @@ class MyDBObserver extends EventEmitter {
   }
 
   /**
+   * Omits a value from an object based on its key
+   */
+  omit(objectToFilter, omitValue) {
+	const {[omitValue]: omitted, ...returnObj} = objectToFilter;
+	return returnObj;
+  }
+
+  /**
+   * Clones an object and adds a new key/value pair
+   */
+  put(objectToClone, newKey, newValue) {
+	const newObject = structuredClone(objectToClone);
+	newObject[newKey] = newValue;
+	return newObject;
+  }
+
+  /**
    * Make sure `_id` is present in the `options.field` property.
    * (Without modifying the original options object.)
    *
@@ -156,7 +171,7 @@ class MyDBObserver extends EventEmitter {
    */
 
   _includeId(options) {
-    return put(options || {}, 'fields', put((options || {}).fields || {}, '_id', 1));
+    return this.put(options || {}, 'fields', this.put((options || {}).fields || {}, '_id', 1));
   }
 }
 
