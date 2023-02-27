@@ -24,7 +24,7 @@
   },
   "peerDependencies": {
     "mongodb": "^3.7.3",
-    "redis": "~2.6.3"
+    "redis": "^4.6.5"
   },
   "engine": {
     "node": ">= 4.0.0"
@@ -34,6 +34,6 @@
     "kerberos": "~0.0.22",
     "mocha": "~3.2.0",
     "mongodb": "^3.7.3",
-    "redis": "~2.6.3"
+    "redis": "^4.6.5"
   }
 }

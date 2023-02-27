@@ -10,9 +10,9 @@ describe('mydb-observer', function () {
   
   before(function (done) {
     mongodb.MongoClient
-      .connect('mongodb://localhost')
-      .then(_db => {
-        db = _db;
+	  .connect('mongodb://localhost:31003', { useUnifiedTopology: true })
+      .then(_client => {
+        db = _client.db('cloudup-development');
         users = db.collection('users-' + Date.now());
         observer = new MyDBObserver();
         done();
