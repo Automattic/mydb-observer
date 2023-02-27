@@ -159,9 +159,9 @@ class MyDBObserver extends EventEmitter {
    * Clones an object and adds a new key/value pair
    */
   put(objectToClone, newKey, newValue) {
-	const newObject = structuredClone(objectToClone);
-	newObject[newKey] = newValue;
-	return newObject;
+    const newObject = structuredClone(objectToClone);
+    newObject[newKey] = newValue;
+    return newObject;
   }
 
   /**
