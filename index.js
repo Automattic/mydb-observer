@@ -152,6 +152,7 @@ class MyDBObserver extends EventEmitter {
     const {[omitValue]: omitted, ...returnObj} = objectToFilter;
     return returnObj;
   }
+
   /**
    * Clones an object and adds a new key/value pair
    */
