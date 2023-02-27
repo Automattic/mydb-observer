@@ -71,6 +71,7 @@ class MyDBObserver extends EventEmitter {
             // event must be emitted async to avoid catching exceptions in the promise
             setImmediate(() => {
               this.emit('op', id, this.omit(query, '_id'), doc);
+<<<<<<< HEAD
             });
           }
           if (callback) callback(null, r);
@@ -97,6 +98,8 @@ class MyDBObserver extends EventEmitter {
             // event must be emitted async to avoid catching exceptions in the promise
             setImmediate(() => {
               this.emit('op', id, this.omit(query, '_id'), doc);
+=======
+>>>>>>> 7fb8d79 (Match code style, and use `this` prefix for class function.)
             });
           }
           if (callback) callback(null, r);
@@ -149,10 +152,9 @@ class MyDBObserver extends EventEmitter {
    * Omits a value from an object based on its key
    */
   omit(objectToFilter, omitValue) {
-	const {[omitValue]: omitted, ...returnObj} = objectToFilter;
-	return returnObj;
+    const {[omitValue]: omitted, ...returnObj} = objectToFilter;
+    return returnObj;
   }
-
   /**
    * Clones an object and adds a new key/value pair
    */
