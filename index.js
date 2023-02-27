@@ -49,8 +49,10 @@ class MyDBObserver extends EventEmitter {
     
     let findAndModify = collection.findAndModify;
     let update = collection.update;
+    let findOneAndUpdate = collection.findOneAndUpdate;
     // Other methods, such as findOneAndUpdate will internally call findAndModify,
     // and need not to be directly patched.
+    // NOTE: No longer true, latest driver `findAndModify` is deprecated, need to call `findOneAndUpdate` directly
     
     /**
      * Find and Modify
@@ -65,6 +67,32 @@ class MyDBObserver extends EventEmitter {
       
       return findAndModify
         .call(collection, query, sort, doc, opts)
+        .then(r => {
+          if (r && r.value && r.value._id) {
+            let id = r.value._id.toString();
+            // event must be emitted async to avoid catching exceptions in the promise
+            setImmediate(() => {
+              this.emit('op', id, omit(query, '_id'), doc);
+            });
+          }
+          if (callback) callback(null, r);
+          return r;
+        })
+        .catch(callback);
+    }
+
+    /**
+     * Find One and Update
+     */
+	collection.findOneAndUpdate = (query, doc, opts, callback) => {
+
+      if (typeof callback == 'undefined' && typeof opts == 'function') {
+        callback = opts;
+        opts = undefined;
+      }
+
+      return findOneAndUpdate
+        .call(collection, query, doc, opts)
         .then(r => {
           if (r && r.value && r.value._id) {
             let id = r.value._id.toString();
