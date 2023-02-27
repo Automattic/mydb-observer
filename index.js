@@ -14,17 +14,17 @@ const debug = require('debug')('mydb-observer');
  */
 
 class MyDBObserver extends EventEmitter {
-  
+
   /**
    * Creates the MyDBObserver instance
    *
    * @param {redis.Client} (optional) redis client to publish the events to
    * @api public
    */
-  
+
   constructor(redis) {
     super();
-    if (redis) {      
+    if (redis) {
       this.redis = redis;
       this.on('op', (id, query, op) => {
         debug('publishing to redis %s channel', id);
@@ -40,29 +40,29 @@ class MyDBObserver extends EventEmitter {
    * @param {mongodb.Collection} a collection to observe
    * @api public
    */
-  
+
   observe(collection) {
-    
+
     debug('patching mongodb.Collection methods');
-    
+
     let findAndModify = collection.findAndModify;
     let update = collection.update;
     let findOneAndUpdate = collection.findOneAndUpdate;
     // Other methods, such as findOneAndUpdate will internally call findAndModify,
     // and need not to be directly patched.
     // NOTE: No longer true, latest driver `findAndModify` is deprecated, need to call `findOneAndUpdate` directly
-    
+
     /**
      * Find and Modify
      */
-    
+
     collection.findAndModify = (query, sort, doc, opts, callback) => {
-      
+
       if (typeof callback == 'undefined' && typeof opts == 'function') {
         callback = opts;
         opts = undefined;
       }
-      
+
       return findAndModify
         .call(collection, query, sort, doc, opts)
         .then(r => {
@@ -71,7 +71,6 @@ class MyDBObserver extends EventEmitter {
             // event must be emitted async to avoid catching exceptions in the promise
             setImmediate(() => {
               this.emit('op', id, this.omit(query, '_id'), doc);
-<<<<<<< HEAD
             });
           }
           if (callback) callback(null, r);
@@ -83,7 +82,7 @@ class MyDBObserver extends EventEmitter {
     /**
      * Find One and Update
      */
-	collection.findOneAndUpdate = (query, doc, opts, callback) => {
+    collection.findOneAndUpdate = (query, doc, opts, callback) => {
 
       if (typeof callback == 'undefined' && typeof opts == 'function') {
         callback = opts;
@@ -98,8 +97,6 @@ class MyDBObserver extends EventEmitter {
             // event must be emitted async to avoid catching exceptions in the promise
             setImmediate(() => {
               this.emit('op', id, this.omit(query, '_id'), doc);
-=======
->>>>>>> 7fb8d79 (Match code style, and use `this` prefix for class function.)
             });
           }
           if (callback) callback(null, r);
@@ -111,14 +108,14 @@ class MyDBObserver extends EventEmitter {
     /**
      * Update
      */
-        
+
     collection.update = (selector, document, options, callback) => {
-      
+
       if (typeof callback == 'undefined' && typeof options == 'function') {
         callback = options;
         options = undefined;
       }
-      
+
       if ((options && options.multi) || selector._id) {
         // update queries with the `multi` option will not produce events, unless `_id` is specified
         debug('`options.multi` specified or `_id`-based query, calling `update` normally');
