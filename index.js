@@ -6,8 +6,6 @@
 
 const EventEmitter = require('events').EventEmitter;
 const debug = require('debug')('mydb-observer');
-const omit = require('101/omit');
-const put = require('101/put');
 
 /**
  * MyDB Observer
@@ -16,17 +14,17 @@ const put = require('101/put');
  */
 
 class MyDBObserver extends EventEmitter {
-  
+
   /**
    * Creates the MyDBObserver instance
    *
    * @param {redis.Client} (optional) redis client to publish the events to
    * @api public
    */
-  
+
   constructor(redis) {
     super();
-    if (redis) {      
+    if (redis) {
       this.redis = redis;
       this.on('op', (id, query, op) => {
         debug('publishing to redis %s channel', id);
@@ -42,29 +40,29 @@ class MyDBObserver extends EventEmitter {
    * @param {mongodb.Collection} a collection to observe
    * @api public
    */
-  
+
   observe(collection) {
-    
+
     debug('patching mongodb.Collection methods');
-    
+
     let findAndModify = collection.findAndModify;
     let update = collection.update;
     let findOneAndUpdate = collection.findOneAndUpdate;
     // Other methods, such as findOneAndUpdate will internally call findAndModify,
     // and need not to be directly patched.
     // NOTE: No longer true, latest driver `findAndModify` is deprecated, need to call `findOneAndUpdate` directly
-    
+
     /**
      * Find and Modify
      */
-    
+
     collection.findAndModify = (query, sort, doc, opts, callback) => {
-      
+
       if (typeof callback == 'undefined' && typeof opts == 'function') {
         callback = opts;
         opts = undefined;
       }
-      
+
       return findAndModify
         .call(collection, query, sort, doc, opts)
         .then(r => {
@@ -72,7 +70,7 @@ class MyDBObserver extends EventEmitter {
             let id = r.value._id.toString();
             // event must be emitted async to avoid catching exceptions in the promise
             setImmediate(() => {
-              this.emit('op', id, omit(query, '_id'), doc);
+              this.emit('op', id, this.omit(query, '_id'), doc);
             });
           }
           if (callback) callback(null, r);
@@ -84,7 +82,7 @@ class MyDBObserver extends EventEmitter {
     /**
      * Find One and Update
      */
-	collection.findOneAndUpdate = (query, doc, opts, callback) => {
+    collection.findOneAndUpdate = (query, doc, opts, callback) => {
 
       if (typeof callback == 'undefined' && typeof opts == 'function') {
         callback = opts;
@@ -98,7 +96,7 @@ class MyDBObserver extends EventEmitter {
             let id = r.value._id.toString();
             // event must be emitted async to avoid catching exceptions in the promise
             setImmediate(() => {
-              this.emit('op', id, omit(query, '_id'), doc);
+              this.emit('op', id, this.omit(query, '_id'), doc);
             });
           }
           if (callback) callback(null, r);
@@ -110,14 +108,14 @@ class MyDBObserver extends EventEmitter {
     /**
      * Update
      */
-        
+
     collection.update = (selector, document, options, callback) => {
-      
+
       if (typeof callback == 'undefined' && typeof options == 'function') {
         callback = options;
         options = undefined;
       }
-      
+
       if ((options && options.multi) || selector._id) {
         // update queries with the `multi` option will not produce events, unless `_id` is specified
         debug('`options.multi` specified or `_id`-based query, calling `update` normally');
@@ -129,7 +127,7 @@ class MyDBObserver extends EventEmitter {
               let id = selector._id.toString();
               // event must be emitted async to avoid catching exceptions in the promise
               setImmediate(() => {
-                this.emit('op', id, omit(selector, '_id'), document);
+                this.emit('op', id, this.omit(selector, '_id'), document);
               });
             }
             if (callback) callback(null, r);
@@ -148,6 +146,23 @@ class MyDBObserver extends EventEmitter {
   }
 
   /**
+   * Omits a value from an object based on its key
+   */
+  omit(objectToFilter, omitValue) {
+    const {[omitValue]: omitted, ...returnObj} = objectToFilter;
+    return returnObj;
+  }
+
+  /**
+   * Clones an object and adds a new key/value pair
+   */
+  put(objectToClone, newKey, newValue) {
+    const newObject = structuredClone(objectToClone);
+    newObject[newKey] = newValue;
+    return newObject;
+  }
+
+  /**
    * Make sure `_id` is present in the `options.field` property.
    * (Without modifying the original options object.)
    *
@@ -156,7 +171,7 @@ class MyDBObserver extends EventEmitter {
    */
 
   _includeId(options) {
-    return put(options || {}, 'fields', put((options || {}).fields || {}, '_id', 1));
+    return this.put(options || {}, 'fields', this.put((options || {}).fields || {}, '_id', 1));
   }
 }
 
